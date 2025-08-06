@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube Speed Booster",
   "version": "1.0.0",
-  "description": "Add 2x, 3x, 4x speed buttons and custom speed control to YouTube player. Enhance your video watching experience with quick speed adjustments.",
+  "description": "Add 2x, 3x, 4x speed buttons and custom speed control to YouTube player. Enhance your video watching experience.",
   "author": "Pushpendra Sharma",
   "homepage_url": "https://github.com/pushpendra010/youtube-speed-extension",
   "content_scripts": [

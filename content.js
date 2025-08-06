@@ -9,7 +9,7 @@ async function checkExtensionState() {
     extensionEnabled = result.extensionEnabled !== false; // Default to true
     return extensionEnabled;
   } catch (error) {
-    console.log("Error checking extension state:", error);
+    
     return true; // Default to enabled if error
   }
 }
@@ -285,7 +285,7 @@ async function addSpeedButtons() {
   });
   container.appendChild(customBtn);
   playerControls.appendChild(container);
-  console.log("YouTube Speed Booster: Buttons added successfully");
+  .log("YouTube Speed Booster: Buttons added successfully");
 }
 
 async function waitForPlayer() {

@@ -4,11 +4,11 @@
 // Installation handler
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
-    console.log("YouTube Speed Booster installed successfully!");
+    
     // Set extension as enabled by default
     await chrome.storage.local.set({ extensionEnabled: true });
   } else if (details.reason === "update") {
-    console.log("YouTube Speed Booster updated successfully!");
+    
   }
 
   // Create context menu
@@ -67,13 +67,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         });
     }
 
-    console.log(`YouTube Speed Booster ${newState ? "enabled" : "disabled"}`);
+
   }
 });
 
 // Extension startup handler
 chrome.runtime.onStartup.addListener(() => {
-  console.log("YouTube Speed Booster started");
+  
 });
 
 // Tab update handler - ensure extension works on YouTube navigation
@@ -84,7 +84,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     (tab.url.includes("youtube.com/watch") || tab.url.includes("youtu.be/"))
   ) {
     // YouTube video page loaded - extension will automatically inject via content script
-    console.log("YouTube video page detected");
+    
   }
 });
 
