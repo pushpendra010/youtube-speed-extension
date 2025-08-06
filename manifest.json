@@ -33,5 +33,19 @@
   },
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "welcome.html",
+        "welcome.css",
+        "welcome.js",
+        "uninstall.html",
+        "uninstall.css",
+        "uninstall.js",
+        "icon.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

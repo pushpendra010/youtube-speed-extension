@@ -4,8 +4,21 @@
 // Installation handler
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
+    console.log("YouTube Speed Booster installed successfully!");
     // Set extension as enabled by default
     await chrome.storage.local.set({ extensionEnabled: true });
+
+    // Set uninstall URL to collect feedback
+    chrome.runtime.setUninstallURL(chrome.runtime.getURL("uninstall.html"));
+
+    // Open welcome page on installation
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("welcome.html"),
+    });
+  } else if (details.reason === "update") {
+    console.log("YouTube Speed Booster updated successfully!");
+    // Also set uninstall URL for updates
+    chrome.runtime.setUninstallURL(chrome.runtime.getURL("uninstall.html"));
   }
 
   // Create right-click context menu for enable/disable only
@@ -59,12 +72,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           // Content script might not be loaded yet, that's okay
         });
     }
-
-  
   }
 });
-
-
 
 // Tab update handler - ensure extension works on YouTube navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -87,8 +96,7 @@ chrome.action.onClicked.addListener(async (tab) => {
       .sendMessage(tab.id, {
         action: "showSpeedMenu",
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   } else {
     // Not on YouTube - redirect to YouTube
     chrome.tabs.create({ url: "https://www.youtube.com" });
