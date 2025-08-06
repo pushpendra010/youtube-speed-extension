@@ -14,7 +14,14 @@
 }
 
 .yt-speed-btn {
-  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(16px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-medium-light,
+    rgba(0, 0, 0, 0.3)
+  ) !important;
   color: white !important;
   border: none !important;
   padding: 8px 16px !important;
@@ -29,7 +36,6 @@
   align-items: center !important;
   justify-content: center !important;
   font-family: "Roboto", "YouTube Sans", sans-serif !important;
-  backdrop-filter: blur(12px) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
   position: relative !important;
   overflow: visible !important;
@@ -53,7 +59,14 @@
 }
 
 .yt-speed-btn:hover {
-  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(20px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-medium,
+    rgba(0, 0, 0, 0.5)
+  ) !important;
   transform: scale(1.05) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
@@ -64,7 +77,14 @@
 }
 
 .yt-speed-btn.active {
-  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(20px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-heavy,
+    rgba(255, 255, 255, 0.2)
+  ) !important;
   color: white !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4),
     inset 0 1px 3px rgba(255, 255, 255, 0.1) !important;
@@ -80,19 +100,40 @@
 
 /* Handle different YouTube themes */
 .ytp-chrome-controls .yt-speed-btn {
-  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(16px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-medium-light,
+    rgba(255, 255, 255, 0.1)
+  ) !important;
 }
 
 /* For dark mode compatibility */
 [dark] .yt-speed-btn,
 .dark .yt-speed-btn {
-  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(16px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-medium-light,
+    rgba(255, 255, 255, 0.1)
+  ) !important;
   color: white !important;
 }
 
 /* Custom speed button styling */
 .yt-custom-btn {
-  background: rgba(76, 175, 80, 0.8) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(16px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-medium-light,
+    rgba(76, 175, 80, 0.6)
+  ) !important;
   border: none !important;
   min-width: 68px !important;
   color: white !important;
@@ -165,7 +206,14 @@
 }
 
 .yt-speed-modal {
-  background: rgba(30, 30, 30, 0.98) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(24px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-heavy,
+    rgba(30, 30, 30, 0.98)
+  ) !important;
   border-radius: 12px !important;
   padding: 28px !important;
   min-width: 360px !important;
@@ -176,7 +224,6 @@
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   position: relative !important;
   animation: slideIn 0.35s cubic-bezier(0.34, 1.26, 0.64, 1) !important;
-  backdrop-filter: blur(24px) !important;
 }
 
 .yt-speed-modal::before {
@@ -529,8 +576,14 @@
 }
 
 .yt-speed-menu {
-  background: rgba(30, 30, 30, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
+  backdrop-filter: var(
+    --yt-frosted-glass-backdrop-filter-override,
+    blur(20px)
+  ) !important;
+  background: var(
+    --yt-spec-static-overlay-background-heavy,
+    rgba(30, 30, 30, 0.95)
+  ) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 16px !important;
   padding: 24px !important;
