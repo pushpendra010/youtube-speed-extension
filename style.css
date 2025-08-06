@@ -1,0 +1,63 @@
+#yt-speed-buttons {
+  display: flex;
+  gap: 4px;
+  margin-left: 10px;
+  align-items: center;
+  z-index: 1000;
+}
+
+.yt-speed-container {
+  display: flex !important;
+  gap: 4px;
+  margin-left: 10px;
+  align-items: center;
+}
+
+.yt-speed-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 2px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  min-width: 32px !important;
+  height: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: "YouTube Sans", "Roboto", sans-serif !important;
+}
+
+.yt-speed-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.yt-speed-btn:active,
+.yt-speed-btn.active {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  transform: scale(0.95) !important;
+}
+
+/* Ensure buttons are visible even with YouTube's changing styles */
+.ytp-left-controls #yt-speed-buttons {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Handle different YouTube themes */
+.ytp-chrome-controls .yt-speed-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* For dark mode compatibility */
+[dark] .yt-speed-btn,
+.dark .yt-speed-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
