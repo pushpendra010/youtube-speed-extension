@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Package Extension",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host 'Packaging YouTube Speed Booster Extension...'; $version = (Get-Content manifest.json | ConvertFrom-Json).version; $zipName = \"youtube-speed-booster-v$version.zip\"; if (Test-Path $zipName) { Remove-Item $zipName }; Compress-Archive -Path 'manifest.json', 'src', 'assets', 'pages' -DestinationPath $zipName; Write-Host \"Extension packaged as: $zipName\" -ForegroundColor Green; Write-Host 'Ready for Chrome Web Store upload!' -ForegroundColor Cyan"
+      ],
+      "group": "build",
+      "isBackground": false,
+      "problemMatcher": []
+    }
+  ]
+}

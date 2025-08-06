@@ -3,7 +3,7 @@
 A Chrome extension that adds quick speed control buttons (2x, 3x, 4x) and custom speed functionality to YouTube videos.
 
 ![Extension Demo](https://img.shields.io/badge/Status-Active-brightgreen)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Version](https://img.shields.io/badge/Version-1.5.0-blue)
 ![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-red)
 
 ## ✨ Features

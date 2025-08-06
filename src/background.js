@@ -37,7 +37,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
     // Open welcome page on installation
     chrome.tabs.create({
-      url: chrome.runtime.getURL("welcome.html"),
+      url: chrome.runtime.getURL("pages/welcome.html"),
     });
   } else if (details.reason === "update") {
     console.log("YouTube Speed Booster updated successfully!");

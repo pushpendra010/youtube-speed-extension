@@ -15,8 +15,8 @@ let extensionEnabled = true;
 // Configuration
 const SPEED_BUTTONS = [
   { speed: 2, label: "2x" },
-  { speed: 3, label: "3x" },
-  { speed: 4, label: "4x" },
+  { speed: 3, label: "3x" }, 
+  { speed: 4, label: "4x" }
 ];
 
 // =============================================================================
@@ -40,7 +40,7 @@ function updateUsageStats(type) {
   try {
     chrome.runtime.sendMessage({
       action: "updateUsageStats",
-      type: type,
+      type: type
     });
   } catch (error) {
     console.log("Error updating usage stats:", error);
