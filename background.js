@@ -1,21 +1,18 @@
 // YouTube Speed Booster Background Service Worker
-// This service worker handles extension lifecycle events and context menu
+// This service worker handles extension lifecycle events
 
 // Installation handler
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
-    
     // Set extension as enabled by default
     await chrome.storage.local.set({ extensionEnabled: true });
-  } else if (details.reason === "update") {
-    
   }
 
-  // Create context menu
+  // Create right-click context menu for enable/disable only
   createContextMenu();
 });
 
-// Create context menu
+// Create simple context menu for enable/disable (right-click only)
 async function createContextMenu() {
   // Remove existing context menu items
   chrome.contextMenus.removeAll();
@@ -24,7 +21,7 @@ async function createContextMenu() {
   const result = await chrome.storage.local.get(["extensionEnabled"]);
   const isEnabled = result.extensionEnabled !== false; // Default to true
 
-  // Create context menu item
+  // Create simple enable/disable context menu item for right-click
   chrome.contextMenus.create({
     id: "toggleExtension",
     title: isEnabled
@@ -34,7 +31,7 @@ async function createContextMenu() {
   });
 }
 
-// Handle context menu clicks
+// Handle context menu clicks (right-click only - for enable/disable)
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "toggleExtension") {
     // Toggle extension state
@@ -46,11 +43,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     await chrome.storage.local.set({ extensionEnabled: newState });
 
     // Update context menu
-    chrome.contextMenus.update("toggleExtension", {
-      title: newState
-        ? "Disable YouTube Speed Booster"
-        : "Enable YouTube Speed Booster",
-    });
+    await createContextMenu();
 
     // Notify content script about state change
     if (
@@ -67,14 +60,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         });
     }
 
-
+  
   }
 });
 
-// Extension startup handler
-chrome.runtime.onStartup.addListener(() => {
-  
-});
+
 
 // Tab update handler - ensure extension works on YouTube navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -83,21 +73,24 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     tab.url &&
     (tab.url.includes("youtube.com/watch") || tab.url.includes("youtu.be/"))
   ) {
-    // YouTube video page loaded - extension will automatically inject via content script
-    
   }
 });
 
-// Handle extension icon click (optional)
-chrome.action.onClicked.addListener((tab) => {
+// Handle extension icon click
+chrome.action.onClicked.addListener(async (tab) => {
   if (
     tab.url &&
     (tab.url.includes("youtube.com") || tab.url.includes("youtu.be"))
   ) {
-    // Already on YouTube, extension should be working
-    chrome.tabs.sendMessage(tab.id, { action: "checkButtons" });
+    // On YouTube - show speed control menu in content script
+    chrome.tabs
+      .sendMessage(tab.id, {
+        action: "showSpeedMenu",
+      })
+      .catch(() => {
+      });
   } else {
-    // Redirect to YouTube
+    // Not on YouTube - redirect to YouTube
     chrome.tabs.create({ url: "https://www.youtube.com" });
   }
 });

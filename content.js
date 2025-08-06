@@ -30,6 +30,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (existingModal) {
         existingModal.remove();
       }
+
+      // Remove speed menu if open
+      const existingMenu = document.getElementById("yt-speed-menu");
+      if (existingMenu) {
+        existingMenu.remove();
+      }
     } else {
       // Re-add buttons if extension is enabled
       setTimeout(() => addSpeedButtons(), 500);
@@ -39,6 +45,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "checkButtons") {
     const buttonsExist = !!document.getElementById("yt-speed-buttons");
     sendResponse({ buttonsExist, enabled: extensionEnabled });
+  } else if (message.action === "setSpeed") {
+    // Set video speed from context menu
+    const video = document.querySelector("video");
+    if (video && message.speed) {
+      video.playbackRate = message.speed;
+
+      // Update button states
+      document.querySelectorAll(".yt-speed-btn").forEach((btn) => {
+        btn.classList.remove("active");
+        if (btn.textContent === `${message.speed}x`) {
+          btn.classList.add("active");
+        }
+      });
+
+      sendResponse({ status: "speed_set", speed: message.speed });
+    } else {
+      sendResponse({ status: "error", message: "Video not found" });
+    }
+  } else if (message.action === "showCustomModal") {
+    // Show custom speed modal from context menu
+    const video = document.querySelector("video");
+    const customBtn = document.querySelector(".yt-custom-btn");
+
+    if (video) {
+      showCustomSpeedModal(video, customBtn);
+      sendResponse({ status: "modal_shown" });
+    } else {
+      sendResponse({ status: "error", message: "Video not found" });
+    }
+  } else if (message.action === "showSpeedMenu") {
+    // Show speed menu overlay (left-click)
+    showSpeedMenu();
+    sendResponse({ status: "menu_shown" });
   }
 });
 
@@ -226,6 +265,184 @@ function showCustomSpeedModal(video, customBtn) {
 
   // Focus on text input
   setTimeout(() => textInput.focus(), 100);
+}
+
+// Show speed control menu overlay (triggered by left-click on extension icon)
+function showSpeedMenu() {
+  // Remove existing menu if any
+  const existingMenu = document.getElementById("yt-speed-menu");
+  if (existingMenu) {
+    existingMenu.remove();
+  }
+
+  // Check if extension is enabled
+  if (!extensionEnabled) {
+    // Show enable option
+    showEnableExtensionMenu();
+    return;
+  }
+
+  // Get current video
+  const video = document.querySelector("video");
+
+  // Create menu overlay
+  const overlay = document.createElement("div");
+  overlay.id = "yt-speed-menu";
+  overlay.className = "yt-speed-menu-overlay";
+
+  // Create menu container
+  const menu = document.createElement("div");
+  menu.className = "yt-speed-menu";
+
+  // Menu header
+  const header = document.createElement("div");
+  header.className = "yt-speed-menu-header";
+  header.innerHTML = `
+    <h3>🚀 YouTube Speed Controls</h3>
+    <span class="yt-current-speed">Current: ${video.playbackRate}x</span>
+  `;
+
+  // Speed options
+  const speedOptions = document.createElement("div");
+  speedOptions.className = "yt-speed-options";
+
+  const speeds = [
+    { value: 0.5, label: "🐌 Slow (0.5x)", class: "speed-slow" },
+    { value: 1, label: "🔄 Normal (1x)", class: "speed-normal" },
+    { value: 2, label: "⚡ 2x Speed", class: "speed-fast" },
+    { value: 3, label: "⚡ 3x Speed", class: "speed-fast" },
+    { value: 4, label: "⚡ 4x Speed", class: "speed-fast" },
+  ];
+
+  speeds.forEach((speedOption) => {
+    const btn = document.createElement("button");
+    btn.className = `yt-speed-menu-btn ${speedOption.class}`;
+    btn.textContent = speedOption.label;
+    btn.dataset.speed = speedOption.value;
+
+    // Highlight current speed
+    if (Math.abs(video.playbackRate - speedOption.value) < 0.01) {
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      setVideoSpeed(speedOption.value);
+      overlay.remove();
+    });
+
+    speedOptions.appendChild(btn);
+  });
+
+  // Custom speed button
+  const customBtn = document.createElement("button");
+  customBtn.className = "yt-speed-menu-btn custom-speed";
+  customBtn.innerHTML = "⚙️ Custom Speed...";
+  customBtn.addEventListener("click", () => {
+    overlay.remove();
+    const customSpeedBtn = document.querySelector(".yt-custom-btn");
+    showCustomSpeedModal(video, customSpeedBtn);
+  });
+
+  // Disable extension button
+  const disableBtn = document.createElement("button");
+  disableBtn.className = "yt-speed-menu-btn disable-btn";
+  disableBtn.innerHTML = "❌ Disable Extension";
+  disableBtn.addEventListener("click", async () => {
+    // Disable extension
+    await chrome.storage.local.set({ extensionEnabled: false });
+    extensionEnabled = false;
+
+    // Remove buttons and menu
+    const existingButtons = document.getElementById("yt-speed-buttons");
+    if (existingButtons) {
+      existingButtons.remove();
+    }
+    overlay.remove();
+  });
+
+  // Assemble menu
+  menu.appendChild(header);
+  menu.appendChild(speedOptions);
+  menu.appendChild(customBtn);
+  menu.appendChild(disableBtn);
+  overlay.appendChild(menu);
+
+  // Add to page
+  document.body.appendChild(overlay);
+
+  // Close menu when clicking outside
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+
+  // Close menu with escape key
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      overlay.remove();
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+  };
+  document.addEventListener("keydown", handleKeyDown);
+
+  // Auto-remove after 10 seconds
+  setTimeout(() => {
+    if (document.getElementById("yt-speed-menu")) {
+      overlay.remove();
+    }
+  }, 10000);
+}
+
+// Show enable extension menu when extension is disabled
+function showEnableExtensionMenu() {
+  const overlay = document.createElement("div");
+  overlay.id = "yt-speed-menu";
+  overlay.className = "yt-speed-menu-overlay";
+
+  const menu = document.createElement("div");
+  menu.className = "yt-speed-menu disabled-menu";
+
+  menu.innerHTML = `
+    <div class="yt-speed-menu-header">
+      <h3>🚀 YouTube Speed Booster</h3>
+      <span class="disabled-text">Extension is currently disabled</span>
+    </div>
+    <button class="yt-speed-menu-btn enable-btn">✅ Enable Extension</button>
+  `;
+
+  const enableBtn = menu.querySelector(".enable-btn");
+  enableBtn.addEventListener("click", async () => {
+    await chrome.storage.local.set({ extensionEnabled: true });
+    extensionEnabled = true;
+    overlay.remove();
+    setTimeout(() => addSpeedButtons(), 500);
+  });
+
+  overlay.appendChild(menu);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// Helper function to set video speed and update UI
+function setVideoSpeed(speed) {
+  const video = document.querySelector("video");
+  if (video) {
+    video.playbackRate = speed;
+
+    // Update button states
+    document.querySelectorAll(".yt-speed-btn").forEach((btn) => {
+      btn.classList.remove("active");
+      if (btn.textContent === `${speed}x`) {
+        btn.classList.add("active");
+      }
+    });
+  }
 }
 
 async function addSpeedButtons() {
