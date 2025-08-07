@@ -7,10 +7,15 @@
 
 // Set uninstall URL when service worker starts
 function setupUninstallURL() {
-  // Use GitHub issues page as uninstall URL since extension URLs don't work
-  const uninstallURL =
-    "https://github.com/pushpendra010/youtube-speed-extension/issues/new?title=Extension%20Feedback&body=Thanks%20for%20trying%20YouTube%20Speed%20Booster!%20Please%20share%20your%20feedback%20or%20reason%20for%20uninstalling.";
-  chrome.runtime.setUninstallURL(uninstallURL);
+  // Use direct GitHub issues URL - this is the most reliable approach
+  const uninstallURL = "https://github.com/pushpendra010/youtube-speed-extension/issues/new?title=Uninstall%20Feedback&body=Thanks%20for%20trying%20YouTube%20Speed%20Booster!%20Please%20share%20your%20feedback%20or%20reason%20for%20uninstalling.";
+
+  try {
+    chrome.runtime.setUninstallURL(uninstallURL);
+    console.log("Uninstall URL set to GitHub issues");
+  } catch (error) {
+    console.log("Error setting uninstall URL:", error);
+  }
 }
 
 // Initialize uninstall URL immediately
