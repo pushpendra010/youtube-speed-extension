@@ -70,40 +70,42 @@ function injectStyles() {
         /* YouTube-style Speed Modal - Exact Match */
         .yt-speed-modal {
             position: fixed;
-            background: #212121;
+            background: transparent;
+            backdrop-filter: blur(20px);
             border-radius: 12px;
-            padding: 20px;
-            color: white;
+            padding: 16px;
+            color: #3f3d3c;
             font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
-            width: 300px;
+            width: 250px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             z-index: 999999;
+            border: 1px solid rgba(63, 61, 60, 0.3);
         }
         
         .yt-speed-modal-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .yt-speed-modal h3 {
-            margin: 0 0 8px 0;
-            font-size: 18px;
+            margin: 0 0 6px 0;
+            font-size: 16px;
             font-weight: 400;
             color: #fff;
             text-align: center;
         }
         
         .yt-speed-current {
-            font-size: 14px;
+            font-size: 13px;
             color: #aaa;
             text-align: center;
         }
         
         .yt-speed-slider-container {
-            margin: 20px 0;
+            margin: 16px 0;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
         }
         
         .yt-speed-slider {
@@ -139,48 +141,48 @@ function injectStyles() {
         .yt-speed-value {
             background: #404040;
             border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
+            border-radius: 6px;
+            padding: 6px 12px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
-            min-width: 70px;
+            min-width: 60px;
             font-family: "Roboto", sans-serif;
         }
         
         .yt-speed-presets-section {
-            margin: 24px 0 20px 0;
+            margin: 18px 0 16px 0;
         }
         
         .yt-speed-presets-title {
             color: #ff6b35;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
         }
         
         .yt-speed-presets-title::before {
             content: "⚡";
-            margin-right: 8px;
-            font-size: 16px;
+            margin-right: 6px;
+            font-size: 14px;
         }
         
         .yt-speed-presets {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
         
         .yt-speed-preset {
             background: #404040;
             border: none;
             color: white;
-            padding: 12px 8px;
-            border-radius: 8px;
+            padding: 10px 6px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
             transition: all 0.2s ease;
             text-align: center;
@@ -201,10 +203,10 @@ function injectStyles() {
             background: #404040;
             border: none;
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-family: "Roboto", sans-serif;
             transition: all 0.2s ease;
         }
@@ -266,10 +268,10 @@ function showCustomSpeedModal() {
 
   // Position the modal above the custom button
   const btnRect = customBtn.getBoundingClientRect();
-  const modalHeight = 280;
-  const modalWidth = 300;
+  const modalHeight = 240;
+  const modalWidth = 250;
 
-  let top = btnRect.top - modalHeight - 135;
+  let top = btnRect.top - modalHeight - 120;
   let left = btnRect.left - (modalWidth - btnRect.width) / 2;
 
   if (top < 10) {
