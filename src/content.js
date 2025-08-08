@@ -21,7 +21,7 @@ function injectStyles() {
         .yt-speed-btn {
             font-family: "Roboto", "YouTube Sans", Arial, sans-serif !important;
             font-size: 14px !important;
-            font-weight: 500 !important;
+            font-weight: 400 !important;
             color: #fff !important;
             width: 48px !important;
             height: 48px !important;
@@ -31,55 +31,266 @@ function injectStyles() {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            opacity: 0.9 !important;
-            transition: opacity 0.1s !important;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+            opacity: 0.8 !important;
+            transition: opacity 0.1s cubic-bezier(0.4, 0, 1, 1) !important;
             user-select: none !important;
             outline: none !important;
+            position: relative !important;
+            vertical-align: top !important;
+            line-height: 1 !important;
         }
+        
         .yt-speed-btn:hover {
             opacity: 1 !important;
         }
+        
         .yt-speed-btn.active {
             opacity: 1 !important;
             color: #3ea6ff !important;
-            font-weight: 600 !important;
         }
+        
         .yt-custom-btn {
-            font-size: 12px !important;
-            width: 60px !important;
+            font-size: 11px !important;
+            width: 48px !important;
         }
+        
+        /* Target the left side of right controls */
         .ytp-right-controls .yt-speed-btn {
             order: -10 !important;
             flex: none !important;
         }
-        .ytp-fullscreen .yt-speed-btn {
-            width: 80px !important;
-            height: 80px !important;
-            font-size: 20px !important;
-            background: rgba(0,0,0,0.3) !important;
-            border-radius: 8px !important;
-            margin: 0 4px !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-        }
-        .ytp-fullscreen .yt-custom-btn {
-            width: 100px !important;
-            font-size: 16px !important;
+        
+        /* Position buttons on the left side of right controls */
+        .ytp-right-controls-left .yt-speed-btn {
+            order: 1 !important;
+            flex: none !important;
+            margin: 0 2px !important;
         }
         
-        /* YouTube-style Speed Modal - Exact Match */
+        /* Ensure proper spacing in the left controls area */
+        .ytp-right-controls-left {
+            display: flex !important;
+            align-items: center !important;
+            gap: 2px !important;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .yt-speed-btn {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 12px !important;
+            }
+            .yt-custom-btn {
+                width: 44px !important;
+                font-size: 10px !important;
+            }
+        }
+        
+        /* Tablet optimizations */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .yt-speed-btn {
+                width: 46px !important;
+                height: 46px !important;
+                font-size: 13px !important;
+            }
+            .yt-custom-btn {
+                width: 46px !important;
+                font-size: 10px !important;
+            }
+        }
+        
+        /* Large screen optimizations */
+        @media (min-width: 1920px) {
+            .yt-speed-btn {
+                width: 52px !important;
+                height: 52px !important;
+                font-size: 15px !important;
+            }
+            .yt-custom-btn {
+                width: 52px !important;
+                font-size: 12px !important;
+            }
+        }
+        
+        /* Fullscreen responsive styling */
+        .ytp-fullscreen .yt-speed-btn {
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 14px !important;
+            background: transparent !important;
+            border: none !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            backdrop-filter: none !important;
+            opacity: 0.8 !important;
+        }
+        
+        .ytp-fullscreen .yt-custom-btn {
+            width: 48px !important;
+            font-size: 11px !important;
+        }
+        
+        /* Fullscreen mobile */
+        @media (max-width: 768px) {
+            .ytp-fullscreen .yt-speed-btn {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 16px !important;
+            }
+            .ytp-fullscreen .yt-custom-btn {
+                width: 56px !important;
+                font-size: 13px !important;
+            }
+        }
+        
+        /* Fullscreen tablet */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .ytp-fullscreen .yt-speed-btn {
+                width: 60px !important;
+                height: 60px !important;
+                font-size: 18px !important;
+            }
+            .ytp-fullscreen .yt-custom-btn {
+                width: 60px !important;
+                font-size: 15px !important;
+            }
+        }
+        
+        /* Fullscreen large screens */
+        @media (min-width: 1920px) {
+            .ytp-fullscreen .yt-speed-btn {
+                width: 64px !important;
+                height: 64px !important;
+                font-size: 20px !important;
+            }
+            .ytp-fullscreen .yt-custom-btn {
+                width: 64px !important;
+                font-size: 17px !important;
+            }
+        }
+        
+        .ytp-fullscreen .yt-speed-btn:hover {
+            opacity: 1 !important;
+        }
+        
+        /* Responsive Speed Modal */
         .yt-speed-modal {
             position: fixed;
-            background: transparent;
-            backdrop-filter: blur(20px);
-            border-radius: 12px;
+            background: #212121;
+            border-radius: 8px;
             padding: 16px;
-            color: #3f3d3c;
+            color: white;
+            font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
+            width: min(280px, 90vw);
+            max-width: 350px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 999999;
+            border: 1px solid #404040;
+        }
+        
+        /* Mobile modal */
+        @media (max-width: 768px) {
+            .yt-speed-modal {
+                width: min(260px, 85vw);
+                padding: 14px;
+                border-radius: 6px;
+            }
+            
+            .yt-speed-modal h3 {
+                font-size: 15px !important;
+            }
+            
+            .yt-speed-current {
+                font-size: 12px !important;
+            }
+            
+            .yt-speed-slider-container {
+                gap: 10px !important;
+            }
+            
+            .yt-speed-value {
+                font-size: 13px !important;
+                padding: 5px 10px !important;
+                min-width: 50px !important;
+            }
+            
+            .yt-speed-presets {
+                gap: 4px !important;
+            }
+            
+            .yt-speed-preset {
+                padding: 8px 4px !important;
+                font-size: 12px !important;
+            }
+            
+            .yt-speed-close {
+                padding: 8px !important;
+                font-size: 12px !important;
+            }
+        }
+        
+        /* Tablet modal */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .yt-speed-modal {
+                width: min(300px, 80vw);
+            }
+        }
+        
+        /* Large screen modal */
+        @media (min-width: 1920px) {
+            .yt-speed-modal {
+                width: min(320px, 25vw);
+                padding: 18px;
+            }
+            
+            .yt-speed-modal h3 {
+                font-size: 17px !important;
+            }
+            
+            .yt-speed-value {
+                font-size: 15px !important;
+                padding: 7px 14px !important;
+            }
+            
+            .yt-speed-preset {
+                padding: 11px 7px !important;
+                font-size: 14px !important;
+            }
+        }
+        
+        /* Fullscreen modal responsive */
+        .ytp-fullscreen .yt-speed-modal {
+            width: min(320px, 40vw) !important;
+            padding: 20px !important;
+        }
+        
+        @media (max-width: 768px) {
+            .ytp-fullscreen .yt-speed-modal {
+                width: min(280px, 70vw) !important;
+                padding: 16px !important;
+            }
+        }
+        
+        @media (min-width: 1920px) {
+            .ytp-fullscreen .yt-speed-modal {
+                width: min(400px, 30vw) !important;
+                padding: 24px !important;
+            }
+        }
+        
+        /* YouTube-style Speed Modal */
+        .yt-speed-modal {
+            position: fixed;
+            background: #212121;
+            border-radius: 8px;
+            padding: 16px;
+            color: white;
             font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
             width: 250px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             z-index: 999999;
-            border: 1px solid rgba(63, 61, 60, 0.3);
+            border: 1px solid #404040;
         }
         
         .yt-speed-modal-header {
@@ -214,6 +425,77 @@ function injectStyles() {
         .yt-speed-close:hover {
             background: #505050;
         }
+        
+        /* Fullscreen modal - positioned relative to button, not center */
+        .ytp-fullscreen .yt-speed-modal {
+            width: 300px !important;
+            padding: 20px !important;
+        }
+        
+        /* Hide speed buttons on small screens like other YouTube controls */
+        @media (max-width: 768px) {
+            .ytp-right-controls-left .yt-speed-btn {
+                display: none !important;
+            }
+            
+            /* Show only in fullscreen on mobile */
+            .ytp-fullscreen .ytp-right-controls-left .yt-speed-btn {
+                display: inline-flex !important;
+            }
+        }
+        
+        /* Hide some buttons on very small screens */
+        @media (max-width: 480px) {
+            .ytp-right-controls-left .yt-speed-btn:not(.yt-custom-btn) {
+                display: none !important;
+            }
+            
+            /* Keep only custom button on very small screens */
+            .ytp-right-controls-left .yt-custom-btn {
+                display: inline-flex !important;
+            }
+            
+            /* Show all in fullscreen */
+            .ytp-fullscreen .ytp-right-controls-left .yt-speed-btn {
+                display: inline-flex !important;
+            }
+        }
+        
+        /* Tablet - hide preset buttons, keep custom */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .ytp-right-controls-left .yt-speed-btn:not(.yt-custom-btn) {
+                display: none !important;
+            }
+            
+            .ytp-right-controls-left .yt-custom-btn {
+                display: inline-flex !important;
+            }
+            
+            /* Show all in fullscreen on tablet */
+            .ytp-fullscreen .ytp-right-controls-left .yt-speed-btn {
+                display: inline-flex !important;
+            }
+        }
+        
+        /* Ensure buttons follow YouTube's responsive behavior */
+        .ytp-size-small .ytp-right-controls-left .yt-speed-btn:not(.yt-custom-btn) {
+            display: none !important;
+        }
+        
+        .ytp-size-small .ytp-right-controls-left .yt-custom-btn {
+            display: inline-flex !important;
+        }
+        
+        /* Hide all speed buttons when YouTube hides other controls */
+        .ytp-autohide .ytp-right-controls-left .yt-speed-btn {
+            opacity: 0.8 !important;
+            transition: opacity 0.2s ease !important;
+        }
+        
+        .ytp-autohide:hover .ytp-right-controls-left .yt-speed-btn,
+        .ytp-autohide.ytp-user-active .ytp-right-controls-left .yt-speed-btn {
+            opacity: 1 !important;
+        }
     `;
   document.head.appendChild(style);
 }
@@ -236,15 +518,25 @@ function showCustomSpeedModal() {
   const modal = document.createElement("div");
   modal.className = "yt-speed-modal";
 
+  // Function to format speed values consistently
+  function formatSpeed(speed) {
+    const roundedSpeed = Math.round(speed * 100) / 100;
+    return roundedSpeed % 1 === 0
+      ? `${roundedSpeed}`
+      : roundedSpeed.toFixed(2).replace(/\.?0+$/, "");
+  }
+
+  const currentSpeedFormatted = formatSpeed(video.playbackRate);
+
   modal.innerHTML = `
     <div class="yt-speed-modal-header">
       <h3>Playback speed</h3>
-      <div class="yt-speed-current">Current: ${video.playbackRate}x</div>
+      <div class="yt-speed-current">Current: ${currentSpeedFormatted}x</div>
     </div>
     
     <div class="yt-speed-slider-container">
       <input type="range" class="yt-speed-slider" min="0.25" max="4" step="0.05" value="${video.playbackRate}">
-      <div class="yt-speed-value">${video.playbackRate}x</div>
+      <div class="yt-speed-value">${currentSpeedFormatted}x</div>
     </div>
     
     <div class="yt-speed-presets-section">
@@ -266,22 +558,57 @@ function showCustomSpeedModal() {
 
   document.body.appendChild(modal);
 
-  // Position the modal above the custom button
+  // Position the modal above the custom button for both regular and fullscreen
   const btnRect = customBtn.getBoundingClientRect();
-  const modalHeight = 240;
-  const modalWidth = 250;
+  const isFullscreen = document.querySelector(".ytp-fullscreen") !== null;
+  const isMobile = window.innerWidth <= 768;
+  const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
 
-  let top = btnRect.top - modalHeight - 120;
+  // Dynamic sizing based on screen and fullscreen state
+  let modalHeight, modalWidth, topOffset;
+
+  if (isMobile) {
+    modalHeight = isFullscreen ? 280 : 220;
+    modalWidth = isFullscreen
+      ? Math.min(280, window.innerWidth * 0.7)
+      : Math.min(260, window.innerWidth * 0.85);
+    topOffset = isFullscreen ? 40 : 80;
+  } else if (isTablet) {
+    modalHeight = isFullscreen ? 300 : 240;
+    modalWidth = isFullscreen
+      ? Math.min(320, window.innerWidth * 0.4)
+      : Math.min(300, window.innerWidth * 0.8);
+    topOffset = isFullscreen ? 50 : 100;
+  } else {
+    modalHeight = isFullscreen ? 320 : 260;
+    modalWidth = isFullscreen
+      ? Math.min(400, window.innerWidth * 0.3)
+      : Math.min(320, window.innerWidth * 0.25);
+    topOffset = isFullscreen ? 70 : 120;
+  }
+
+  let top = btnRect.top - modalHeight - topOffset;
   let left = btnRect.left - (modalWidth - btnRect.width) / 2;
 
-  if (top < 10) {
-    top = btnRect.bottom + 10;
+  // Smart positioning with screen bounds
+  const padding = isMobile ? 8 : 16;
+
+  if (top < padding) {
+    top = btnRect.bottom + padding;
   }
-  if (left < 10) {
-    left = 10;
+  if (left < padding) {
+    left = padding;
   }
-  if (left + modalWidth > window.innerWidth - 10) {
-    left = window.innerWidth - modalWidth - 10;
+  if (left + modalWidth > window.innerWidth - padding) {
+    left = window.innerWidth - modalWidth - padding;
+  }
+
+  // For mobile, center horizontally if too close to edges
+  if (
+    isMobile &&
+    (left < padding || left + modalWidth > window.innerWidth - padding)
+  ) {
+    left = (window.innerWidth - modalWidth) / 2;
   }
 
   modal.style.top = `${top}px`;
@@ -317,15 +644,14 @@ function showCustomSpeedModal() {
   // Slider handler
   slider.addEventListener("input", () => {
     const speed = parseFloat(slider.value);
-    valueDisplay.textContent = `${speed}x`;
+    const formattedSpeed = formatSpeed(speed);
+
+    valueDisplay.textContent = `${formattedSpeed}x`;
     updateSliderBackground();
     updatePresetSelection(speed);
 
-    // Apply speed in real-time
     setVideoSpeed(speed);
-    currentDisplay.textContent = `Current: ${speed}x`;
-
-    // Update custom button to show speed value
+    currentDisplay.textContent = `Current: ${formattedSpeed}x`;
     updateCustomButtonDisplay(speed);
   });
 
@@ -333,16 +659,15 @@ function showCustomSpeedModal() {
   presets.forEach((preset) => {
     preset.addEventListener("click", () => {
       const speed = parseFloat(preset.dataset.speed);
+      const formattedSpeed = formatSpeed(speed);
+
       slider.value = speed;
-      valueDisplay.textContent = `${speed}x`;
+      valueDisplay.textContent = `${formattedSpeed}x`;
       updateSliderBackground();
       updatePresetSelection(speed);
 
-      // Apply speed immediately
       setVideoSpeed(speed);
-      currentDisplay.textContent = `Current: ${speed}x`;
-
-      // Update custom button to show speed value
+      currentDisplay.textContent = `Current: ${formattedSpeed}x`;
       updateCustomButtonDisplay(speed);
     });
   });
@@ -451,7 +776,14 @@ function updateButtonStates() {
 // Add Speed Buttons
 // ==========================
 function addSpeedButtons() {
-  const controls = document.querySelector(".ytp-right-controls");
+  // First try to find the left side of right controls
+  let controls = document.querySelector(".ytp-right-controls-left");
+
+  // If left controls don't exist, fall back to regular right controls
+  if (!controls) {
+    controls = document.querySelector(".ytp-right-controls");
+  }
+
   if (!controls) {
     console.log("Right controls not found");
     return false;
@@ -462,7 +794,7 @@ function addSpeedButtons() {
     return true;
   }
 
-  console.log("Adding speed buttons");
+  console.log("Adding speed buttons to", controls.className);
 
   // Add custom speed button first
   const customBtn = document.createElement("button");
@@ -477,10 +809,16 @@ function addSpeedButtons() {
     e.stopPropagation();
     showCustomSpeedModal();
   });
-  controls.insertBefore(customBtn, controls.firstChild);
 
-  // Add preset buttons in reverse order since we're prepending
-  [...SPEEDS].reverse().forEach((speed) => {
+  // Insert at the beginning of left controls, or end of right controls
+  if (controls.classList.contains("ytp-right-controls-left")) {
+    controls.appendChild(customBtn);
+  } else {
+    controls.insertBefore(customBtn, controls.firstChild);
+  }
+
+  // Add preset buttons
+  [...SPEEDS].forEach((speed) => {
     const btn = document.createElement("button");
     btn.className = "ytp-button yt-speed-btn";
     btn.dataset.speed = speed;
@@ -490,7 +828,12 @@ function addSpeedButtons() {
       e.stopPropagation();
       setVideoSpeed(speed);
     });
-    controls.insertBefore(btn, controls.firstChild);
+
+    if (controls.classList.contains("ytp-right-controls-left")) {
+      controls.appendChild(btn);
+    } else {
+      controls.insertBefore(btn, controls.firstChild);
+    }
   });
 
   // Monitor video for speed changes
@@ -516,9 +859,10 @@ function waitForPlayer() {
 
   const player = document.querySelector("#movie_player");
   const video = document.querySelector("video");
-  const controls = document.querySelector(".ytp-right-controls");
+  const rightControls = document.querySelector(".ytp-right-controls");
+  const leftRightControls = document.querySelector(".ytp-right-controls-left");
 
-  if (player && video && controls) {
+  if (player && video && (rightControls || leftRightControls)) {
     console.log("Player found, adding buttons");
     if (addSpeedButtons()) {
       return;
@@ -556,9 +900,11 @@ const observer = new MutationObserver((mutations) => {
             node.matches &&
             (node.matches("#movie_player") ||
               node.matches(".ytp-right-controls") ||
+              node.matches(".ytp-right-controls-left") ||
               (node.querySelector &&
                 (node.querySelector("#movie_player") ||
-                  node.querySelector(".ytp-right-controls"))))
+                  node.querySelector(".ytp-right-controls") ||
+                  node.querySelector(".ytp-right-controls-left"))))
           ) {
             shouldCheck = true;
           }
@@ -569,7 +915,10 @@ const observer = new MutationObserver((mutations) => {
 
   if (shouldCheck) {
     setTimeout(() => {
-      const controls = document.querySelector(".ytp-right-controls");
+      const leftControls = document.querySelector(".ytp-right-controls-left");
+      const rightControls = document.querySelector(".ytp-right-controls");
+      const controls = leftControls || rightControls;
+
       if (controls && !controls.querySelector(".yt-speed-btn")) {
         addSpeedButtons();
       }
@@ -586,7 +935,9 @@ observer.observe(document.documentElement, {
 // Periodic Check
 // ==========================
 const periodicCheck = setInterval(() => {
-  const controls = document.querySelector(".ytp-right-controls");
+  const leftControls = document.querySelector(".ytp-right-controls-left");
+  const rightControls = document.querySelector(".ytp-right-controls");
+  const controls = leftControls || rightControls;
   const buttons = document.querySelectorAll(".yt-speed-btn");
 
   if (controls && buttons.length === 0) {

@@ -162,7 +162,7 @@ addInteractiveFeatures();
 
 // Show welcome message in console
 console.log(`
-🚀 YouTube Speed Booster v1.5.0
+🚀 YouTube Speed Booster v2.0.1
 Thank you for installing our extension!
 
 🔓 Open Source: https://github.com/pushpendra010/youtube-speed-extension

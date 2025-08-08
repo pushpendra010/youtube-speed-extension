@@ -83,7 +83,7 @@ When ready to publish:
 
 ```powershell
 # Create distribution package
-Compress-Archive -Path 'manifest.json', 'src', 'assets', 'pages' -DestinationPath 'youtube-speed-booster-v1.5.0.zip'
+Compress-Archive -Path 'manifest.json', 'src', 'assets', 'pages' -DestinationPath 'youtube-speed-booster-v2.0.1.zip'
 ```
 
 ## 🔄 **Development Workflow**
