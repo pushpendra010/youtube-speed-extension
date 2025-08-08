@@ -1,617 +1,619 @@
-// =============================================================================
-// YOUTUBE SPEED BOOSTER - CONTENT SCRIPT
-// =============================================================================
-// This script injects speed control buttons into YouTube video player
-// and handles all user interactions for speed control functionality
-// =============================================================================
+// ==========================
+// YouTube Speed Booster
+// ==========================
 
-// =============================================================================
-// GLOBAL STATE & CONFIGURATION
-// =============================================================================
+// Config
+const SPEEDS = [2, 3, 4];
+let currentSpeed = 1;
+let speedPopup = null;
+let retryCount = 0;
+const maxRetries = 20;
 
-// Extension state
-let extensionEnabled = true;
+// ==========================
+// Inject Custom Styles
+// ==========================
+function injectStyles() {
+  if (document.getElementById("yt-speed-styles")) return;
 
-// Configuration
-const SPEED_BUTTONS = [
-  { speed: 2, label: "2x" },
-  { speed: 3, label: "3x" }, 
-  { speed: 4, label: "4x" }
-];
-
-// =============================================================================
-// UTILITY FUNCTIONS
-// =============================================================================
-
-// Check extension state from storage
-async function checkExtensionState() {
-  try {
-    const result = await chrome.storage.local.get(["extensionEnabled"]);
-    extensionEnabled = result.extensionEnabled !== false; // Default to true
-    return extensionEnabled;
-  } catch (error) {
-    console.log("Error checking extension state:", error);
-    return true; // Default to enabled if error
-  }
-}
-
-// Update usage statistics
-function updateUsageStats(type) {
-  try {
-    chrome.runtime.sendMessage({
-      action: "updateUsageStats",
-      type: type
-    });
-  } catch (error) {
-    console.log("Error updating usage stats:", error);
-  }
-}
-
-// =============================================================================
-// MESSAGE HANDLING
-// =============================================================================
-
-// Listen for messages from background script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "updateState") {
-    extensionEnabled = message.enabled;
-
-    if (!extensionEnabled) {
-      // Remove buttons if extension is disabled
-      const existingButtons = document.getElementById("yt-speed-buttons");
-      if (existingButtons) {
-        existingButtons.remove();
-      }
-
-      // Remove modal if open
-      const existingModal = document.getElementById("yt-speed-modal");
-      if (existingModal) {
-        existingModal.remove();
-      }
-
-      // Remove speed menu if open
-      const existingMenu = document.getElementById("yt-speed-menu");
-      if (existingMenu) {
-        existingMenu.remove();
-      }
-    } else {
-      // Re-add buttons if extension is enabled
-      setTimeout(() => addSpeedButtons(), 500);
-    }
-
-    sendResponse({ status: "updated" });
-  } else if (message.action === "checkButtons") {
-    const buttonsExist = !!document.getElementById("yt-speed-buttons");
-    sendResponse({ buttonsExist, enabled: extensionEnabled });
-  } else if (message.action === "setSpeed") {
-    // Set video speed from context menu
-    const video = document.querySelector("video");
-    if (video && message.speed) {
-      video.playbackRate = message.speed;
-
-      // Update button states
-      document.querySelectorAll(".yt-speed-btn").forEach((btn) => {
-        btn.classList.remove("active");
-        if (btn.textContent === `${message.speed}x`) {
-          btn.classList.add("active");
+  const style = document.createElement("style");
+  style.id = "yt-speed-styles";
+  style.textContent = `
+        .yt-speed-btn {
+            font-family: "Roboto", "YouTube Sans", Arial, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            color: #fff !important;
+            width: 48px !important;
+            height: 48px !important;
+            background: transparent !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 0.9 !important;
+            transition: opacity 0.1s !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+            user-select: none !important;
+            outline: none !important;
         }
-      });
+        .yt-speed-btn:hover {
+            opacity: 1 !important;
+        }
+        .yt-speed-btn.active {
+            opacity: 1 !important;
+            color: #3ea6ff !important;
+            font-weight: 600 !important;
+        }
+        .yt-custom-btn {
+            font-size: 12px !important;
+            width: 60px !important;
+        }
+        .ytp-right-controls .yt-speed-btn {
+            order: -10 !important;
+            flex: none !important;
+        }
+        .ytp-fullscreen .yt-speed-btn {
+            width: 80px !important;
+            height: 80px !important;
+            font-size: 20px !important;
+            background: rgba(0,0,0,0.3) !important;
+            border-radius: 8px !important;
+            margin: 0 4px !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .ytp-fullscreen .yt-custom-btn {
+            width: 100px !important;
+            font-size: 16px !important;
+        }
+        
+        /* YouTube-style Speed Modal - Exact Match */
+        .yt-speed-modal {
+            position: fixed;
+            background: #212121;
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
+            width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            z-index: 999999;
+        }
+        
+        .yt-speed-modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .yt-speed-modal h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 400;
+            color: #fff;
+            text-align: center;
+        }
+        
+        .yt-speed-current {
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .yt-speed-slider-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .yt-speed-slider {
+            flex: 1;
+            height: 4px;
+            background: #404040;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        
+        .yt-speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .yt-speed-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .yt-speed-value {
+            background: #404040;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            min-width: 70px;
+            font-family: "Roboto", sans-serif;
+        }
+        
+        .yt-speed-presets-section {
+            margin: 24px 0 20px 0;
+        }
+        
+        .yt-speed-presets-title {
+            color: #ff6b35;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .yt-speed-presets-title::before {
+            content: "⚡";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .yt-speed-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .yt-speed-preset {
+            background: #404040;
+            border: none;
+            color: white;
+            padding: 12px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-family: "Roboto", sans-serif;
+        }
+        
+        .yt-speed-preset:hover {
+            background: #505050;
+        }
+        
+        .yt-speed-preset.selected {
+            background: #00d4aa;
+            color: white;
+        }
+        
+        .yt-speed-close {
+            width: 100%;
+            background: #404040;
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+            transition: all 0.2s ease;
+        }
+        
+        .yt-speed-close:hover {
+            background: #505050;
+        }
+    `;
+  document.head.appendChild(style);
+}
 
-      sendResponse({ status: "speed_set", speed: message.speed });
-    } else {
-      sendResponse({ status: "error", message: "Video not found" });
-    }
-  } else if (message.action === "showCustomModal") {
-    // Show custom speed modal from context menu
-    const video = document.querySelector("video");
-    const customBtn = document.querySelector(".yt-custom-btn");
-
-    if (video) {
-      showCustomSpeedModal(video, customBtn);
-      sendResponse({ status: "modal_shown" });
-    } else {
-      sendResponse({ status: "error", message: "Video not found" });
-    }
-  } else if (message.action === "showSpeedMenu") {
-    // Show speed menu overlay (left-click)
-    showSpeedMenu();
-    sendResponse({ status: "menu_shown" });
-  }
-});
-
-function showCustomSpeedModal(video, customBtn) {
+// ==========================
+// Custom Speed Modal
+// ==========================
+function showCustomSpeedModal() {
   // Remove existing modal if any
-  const existingModal = document.getElementById("yt-speed-modal");
+  const existingModal = document.querySelector(".yt-speed-modal");
   if (existingModal) {
     existingModal.remove();
+    return; // Toggle behavior
   }
 
-  // Create modal overlay
-  const overlay = document.createElement("div");
-  overlay.id = "yt-speed-modal";
-  overlay.className = "yt-speed-modal-overlay";
+  const video = document.querySelector("video");
+  const customBtn = document.querySelector(".yt-custom-btn");
+  if (!video || !customBtn) return;
 
-  // Create modal content
   const modal = document.createElement("div");
   modal.className = "yt-speed-modal";
 
-  // Modal header
-  const header = document.createElement("div");
-  header.className = "yt-speed-modal-header";
-  header.innerHTML = `
-    <h3>Custom Playback Speed</h3>
-  `;
-
-  // Current speed display
-  const currentSpeedDisplay = document.createElement("div");
-  currentSpeedDisplay.className = "yt-current-speed";
-  currentSpeedDisplay.textContent = `Current speed: ${video.playbackRate}x`;
-
-  // Speed input section
-  const inputSection = document.createElement("div");
-  inputSection.className = "yt-speed-input-section";
-
-  // Range slider with text input
-  const rangeContainer = document.createElement("div");
-  rangeContainer.className = "yt-speed-range-container";
-
-  const rangeSlider = document.createElement("input");
-  rangeSlider.type = "range";
-  rangeSlider.min = "0.25";
-  rangeSlider.max = "16";
-  rangeSlider.step = "0.05";
-  rangeSlider.value = video.playbackRate;
-  rangeSlider.className = "yt-speed-range";
-
-  const rangeValue = document.createElement("span");
-  rangeValue.className = "yt-speed-range-value";
-  rangeValue.textContent = `${video.playbackRate}x`;
-
-  const textInput = document.createElement("input");
-  textInput.type = "number";
-  textInput.min = "0.25";
-  textInput.max = "16";
-  textInput.step = "0.05";
-  textInput.value = video.playbackRate;
-  textInput.className = "yt-speed-text-input";
-  textInput.placeholder = "Enter speed";
-
-  rangeContainer.appendChild(rangeSlider);
-  rangeContainer.appendChild(rangeValue);
-  rangeContainer.appendChild(textInput);
-
-  // Preset buttons
-  const presetsContainer = document.createElement("div");
-  presetsContainer.className = "yt-speed-presets";
-  presetsContainer.innerHTML = `
-    <div class="yt-speed-presets-label">Quick presets:</div>
-    <div class="yt-speed-presets-buttons">
-      <button class="yt-speed-preset-btn" data-speed="0.5">0.5x</button>
-      <button class="yt-speed-preset-btn" data-speed="0.75">0.75x</button>
-      <button class="yt-speed-preset-btn" data-speed="1">1x</button>
-      <button class="yt-speed-preset-btn" data-speed="1.25">1.25x</button>
-      <button class="yt-speed-preset-btn" data-speed="1.5">1.5x</button>
-      <button class="yt-speed-preset-btn" data-speed="2">2x</button>
-      <button class="yt-speed-preset-btn" data-speed="3">3x</button>
-      <button class="yt-speed-preset-btn" data-speed="4">4x</button>
+  modal.innerHTML = `
+    <div class="yt-speed-modal-header">
+      <h3>Playback speed</h3>
+      <div class="yt-speed-current">Current: ${video.playbackRate}x</div>
     </div>
+    
+    <div class="yt-speed-slider-container">
+      <input type="range" class="yt-speed-slider" min="0.25" max="4" step="0.05" value="${video.playbackRate}">
+      <div class="yt-speed-value">${video.playbackRate}x</div>
+    </div>
+    
+    <div class="yt-speed-presets-section">
+      <div class="yt-speed-presets-title">Quick Presets</div>
+      <div class="yt-speed-presets">
+        <button class="yt-speed-preset" data-speed="0.5">0.5x</button>
+        <button class="yt-speed-preset" data-speed="0.75">0.75x</button>
+        <button class="yt-speed-preset" data-speed="1">1x</button>
+        <button class="yt-speed-preset" data-speed="1.25">1.25x</button>
+        <button class="yt-speed-preset" data-speed="1.5">1.5x</button>
+        <button class="yt-speed-preset" data-speed="2">2x</button>
+        <button class="yt-speed-preset" data-speed="3">3x</button>
+        <button class="yt-speed-preset" data-speed="4">4x</button>
+      </div>
+    </div>
+    
+    <button class="yt-speed-close">Close</button>
   `;
 
-  // Action buttons
-  const actions = document.createElement("div");
-  actions.className = "yt-speed-modal-actions";
-  actions.innerHTML = `
-    <button class="yt-speed-btn-secondary yt-speed-cancel">Cancel</button>
-    <button class="yt-speed-btn-primary yt-speed-apply">Apply</button>
-  `;
+  document.body.appendChild(modal);
 
-  // Assemble modal
-  inputSection.appendChild(rangeContainer);
-  inputSection.appendChild(presetsContainer);
+  // Position the modal above the custom button
+  const btnRect = customBtn.getBoundingClientRect();
+  const modalHeight = 280;
+  const modalWidth = 300;
 
-  modal.appendChild(header);
-  modal.appendChild(currentSpeedDisplay);
-  modal.appendChild(inputSection);
-  modal.appendChild(actions);
-  overlay.appendChild(modal);
+  let top = btnRect.top - modalHeight - 135;
+  let left = btnRect.left - (modalWidth - btnRect.width) / 2;
 
-  // Add to page
-  document.body.appendChild(overlay);
-
-  // Event listeners
-  let currentSpeed = video.playbackRate;
-
-  // Sync range and text input
-  rangeSlider.addEventListener("input", () => {
-    const speed = parseFloat(rangeSlider.value);
-    textInput.value = speed;
-    rangeValue.textContent = `${speed}x`;
-    currentSpeed = speed;
-  });
-
-  textInput.addEventListener("input", () => {
-    const speed = parseFloat(textInput.value);
-    if (!isNaN(speed) && speed >= 0.25 && speed <= 16) {
-      rangeSlider.value = speed;
-      rangeValue.textContent = `${speed}x`;
-      currentSpeed = speed;
-    }
-  });
-
-  // Preset buttons
-  presetsContainer.addEventListener("click", (e) => {
-    if (e.target.classList.contains("yt-speed-preset-btn")) {
-      const speed = parseFloat(e.target.dataset.speed);
-      rangeSlider.value = speed;
-      textInput.value = speed;
-      rangeValue.textContent = `${speed}x`;
-      currentSpeed = speed;
-
-      // Highlight selected preset
-      presetsContainer
-        .querySelectorAll(".yt-speed-preset-btn")
-        .forEach((btn) => btn.classList.remove("selected"));
-      e.target.classList.add("selected");
-    }
-  });
-
-  // Close modal
-  const closeModal = () => overlay.remove();
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeModal();
-  });
-
-  const cancelBtn = actions.querySelector(".yt-speed-cancel");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", closeModal);
+  if (top < 10) {
+    top = btnRect.bottom + 10;
+  }
+  if (left < 10) {
+    left = 10;
+  }
+  if (left + modalWidth > window.innerWidth - 10) {
+    left = window.innerWidth - modalWidth - 10;
   }
 
-  // Apply speed
-  const applyBtn = actions.querySelector(".yt-speed-apply");
-  if (applyBtn) {
-    applyBtn.addEventListener("click", () => {
-      const speed = parseFloat(textInput.value);
+  modal.style.top = `${top}px`;
+  modal.style.left = `${left}px`;
 
-      if (!isNaN(speed) && speed >= 0.25 && speed <= 16) {
-        video.playbackRate = speed;
+  const slider = modal.querySelector(".yt-speed-slider");
+  const valueDisplay = modal.querySelector(".yt-speed-value");
+  const currentDisplay = modal.querySelector(".yt-speed-current");
+  const presets = modal.querySelectorAll(".yt-speed-preset");
+  const closeBtn = modal.querySelector(".yt-speed-close");
 
-        // Update custom button
-        document
-          .querySelectorAll(".yt-speed-btn")
-          .forEach((b) => b.classList.remove("active"));
+  // Update slider background based on value
+  function updateSliderBackground() {
+    const value = parseFloat(slider.value);
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const percentage = ((value - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(to right, #fff 0%, #fff ${percentage}%, #404040 ${percentage}%, #404040 100%)`;
+  }
 
-        if (customBtn) {
-          customBtn.classList.add("active");
-          customBtn.textContent = `${speed}x`;
-        }
-
-        // Reset text after 5 seconds
-        setTimeout(() => {
-          if (customBtn && !customBtn.classList.contains("active")) {
-            customBtn.textContent = "Custom";
-          }
-        }, 5000);
-
-        closeModal();
-      } else {
-        textInput.style.borderColor = "#ff4444";
-        setTimeout(() => (textInput.style.borderColor = ""), 2000);
-      }
+  // Highlight current speed preset
+  function updatePresetSelection(speed) {
+    presets.forEach((preset) => {
+      const presetSpeed = parseFloat(preset.dataset.speed);
+      preset.classList.toggle("selected", Math.abs(presetSpeed - speed) < 0.01);
     });
   }
 
-  // Focus on text input
-  setTimeout(() => textInput.focus(), 100);
-}
+  // Initialize
+  updateSliderBackground();
+  updatePresetSelection(video.playbackRate);
 
-// Show speed control menu overlay (triggered by left-click on extension icon)
-function showSpeedMenu() {
-  // Remove existing menu if any
-  const existingMenu = document.getElementById("yt-speed-menu");
-  if (existingMenu) {
-    existingMenu.remove();
-  }
+  // Slider handler
+  slider.addEventListener("input", () => {
+    const speed = parseFloat(slider.value);
+    valueDisplay.textContent = `${speed}x`;
+    updateSliderBackground();
+    updatePresetSelection(speed);
 
-  // Check if extension is enabled
-  if (!extensionEnabled) {
-    // Show enable option
-    showEnableExtensionMenu();
-    return;
-  }
+    // Apply speed in real-time
+    setVideoSpeed(speed);
+    currentDisplay.textContent = `Current: ${speed}x`;
 
-  // Get current video
-  const video = document.querySelector("video");
+    // Update custom button to show speed value
+    updateCustomButtonDisplay(speed);
+  });
 
-  // Create menu overlay
-  const overlay = document.createElement("div");
-  overlay.id = "yt-speed-menu";
-  overlay.className = "yt-speed-menu-overlay";
+  // Preset button handlers
+  presets.forEach((preset) => {
+    preset.addEventListener("click", () => {
+      const speed = parseFloat(preset.dataset.speed);
+      slider.value = speed;
+      valueDisplay.textContent = `${speed}x`;
+      updateSliderBackground();
+      updatePresetSelection(speed);
 
-  // Create menu container
-  const menu = document.createElement("div");
-  menu.className = "yt-speed-menu";
+      // Apply speed immediately
+      setVideoSpeed(speed);
+      currentDisplay.textContent = `Current: ${speed}x`;
 
-  // Menu header
-  const header = document.createElement("div");
-  header.className = "yt-speed-menu-header";
-  header.innerHTML = `
-    <h3>🚀 YouTube Speed Controls</h3>
-    <span class="yt-current-speed">Current: ${video.playbackRate}x</span>
-  `;
-
-  // Speed options
-  const speedOptions = document.createElement("div");
-  speedOptions.className = "yt-speed-options";
-
-  const speeds = [
-    { value: 0.5, label: "🐌 Slow (0.5x)", class: "speed-slow" },
-    { value: 1, label: "🔄 Normal (1x)", class: "speed-normal" },
-    { value: 2, label: "⚡ 2x Speed", class: "speed-fast" },
-    { value: 3, label: "⚡ 3x Speed", class: "speed-fast" },
-    { value: 4, label: "⚡ 4x Speed", class: "speed-fast" },
-  ];
-
-  speeds.forEach((speedOption) => {
-    const btn = document.createElement("button");
-    btn.className = `yt-speed-menu-btn ${speedOption.class}`;
-    btn.textContent = speedOption.label;
-    btn.dataset.speed = speedOption.value;
-
-    // Highlight current speed
-    if (Math.abs(video.playbackRate - speedOption.value) < 0.01) {
-      btn.classList.add("active");
-    }
-
-    btn.addEventListener("click", () => {
-      setVideoSpeed(speedOption.value);
-      overlay.remove();
+      // Update custom button to show speed value
+      updateCustomButtonDisplay(speed);
     });
-
-    speedOptions.appendChild(btn);
   });
 
-  // Custom speed button
-  const customBtn = document.createElement("button");
-  customBtn.className = "yt-speed-menu-btn custom-speed";
-  customBtn.innerHTML = "⚙️ Custom Speed...";
-  customBtn.addEventListener("click", () => {
-    overlay.remove();
-    const customSpeedBtn = document.querySelector(".yt-custom-btn");
-    showCustomSpeedModal(video, customSpeedBtn);
+  // Close handler
+  closeBtn.addEventListener("click", () => {
+    modal.remove();
   });
 
-  // Disable extension button
-  const disableBtn = document.createElement("button");
-  disableBtn.className = "yt-speed-menu-btn disable-btn";
-  disableBtn.innerHTML = "❌ Disable Extension";
-  disableBtn.addEventListener("click", async () => {
-    // Disable extension
-    await chrome.storage.local.set({ extensionEnabled: false });
-    extensionEnabled = false;
-
-    // Remove buttons and menu
-    const existingButtons = document.getElementById("yt-speed-buttons");
-    if (existingButtons) {
-      existingButtons.remove();
+  // Close when clicking outside
+  const handleClickOutside = (e) => {
+    if (!modal.contains(e.target) && !customBtn.contains(e.target)) {
+      modal.remove();
+      document.removeEventListener("click", handleClickOutside);
     }
-    overlay.remove();
-  });
+  };
 
-  // Assemble menu
-  menu.appendChild(header);
-  menu.appendChild(speedOptions);
-  menu.appendChild(customBtn);
-  menu.appendChild(disableBtn);
-  overlay.appendChild(menu);
+  // Add delay to prevent immediate closure
+  setTimeout(() => {
+    document.addEventListener("click", handleClickOutside);
+  }, 100);
 
-  // Add to page
-  document.body.appendChild(overlay);
-
-  // Close menu when clicking outside
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
-
-  // Close menu with escape key
+  // Close on Escape key
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
-      overlay.remove();
+      modal.remove();
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("click", handleClickOutside);
     }
   };
   document.addEventListener("keydown", handleKeyDown);
-
-  // Auto-remove after 10 seconds
-  setTimeout(() => {
-    if (document.getElementById("yt-speed-menu")) {
-      overlay.remove();
-    }
-  }, 10000);
 }
 
-// Show enable extension menu when extension is disabled
-function showEnableExtensionMenu() {
-  const overlay = document.createElement("div");
-  overlay.id = "yt-speed-menu";
-  overlay.className = "yt-speed-menu-overlay";
+// ==========================
+// Update Custom Button Display
+// ==========================
+function updateCustomButtonDisplay(speed) {
+  const customBtn = document.querySelector(".yt-custom-btn");
+  if (!customBtn) return;
 
-  const menu = document.createElement("div");
-  menu.className = "yt-speed-menu disabled-menu";
+  // Check if this is a non-standard speed (not 1x, 2x, 3x, or 4x)
+  const standardSpeeds = [1, 2, 3, 4];
+  const isStandardSpeed = standardSpeeds.some(
+    (s) => Math.abs(s - speed) < 0.01
+  );
 
-  menu.innerHTML = `
-    <div class="yt-speed-menu-header">
-      <h3>🚀 YouTube Speed Booster</h3>
-      <span class="disabled-text">Extension is currently disabled</span>
-    </div>
-    <button class="yt-speed-menu-btn enable-btn">✅ Enable Extension</button>
-  `;
+  if (!isStandardSpeed) {
+    // Show the speed value for custom speeds
+    customBtn.innerHTML = `${speed}x`;
+    customBtn.classList.add("active");
 
-  const enableBtn = menu.querySelector(".enable-btn");
-  enableBtn.addEventListener("click", async () => {
-    await chrome.storage.local.set({ extensionEnabled: true });
-    extensionEnabled = true;
-    overlay.remove();
-    setTimeout(() => addSpeedButtons(), 500);
-  });
-
-  overlay.appendChild(menu);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
+    // Reset to icon after 5 seconds if speed hasn't changed
+    setTimeout(() => {
+      const video = document.querySelector("video");
+      if (
+        video &&
+        Math.abs(video.playbackRate - speed) < 0.01 &&
+        !isStandardSpeed
+      ) {
+        customBtn.innerHTML = `
+          <svg height="24" viewBox="0 0 24 24" width="24" style="fill: currentColor;">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        `;
+        customBtn.classList.remove("active");
+      }
+    }, 5000);
+  } else {
+    // Reset to icon for standard speeds
+    customBtn.innerHTML = `
+      <svg height="24" viewBox="0 0 24 24" width="24" style="fill: currentColor;">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    `;
+    customBtn.classList.remove("active");
+  }
 }
 
-// Helper function to set video speed and update UI
+// ==========================
+// Set Video Speed
+// ==========================
 function setVideoSpeed(speed) {
   const video = document.querySelector("video");
   if (video) {
     video.playbackRate = speed;
-
-    // Update button states
-    document.querySelectorAll(".yt-speed-btn").forEach((btn) => {
-      btn.classList.remove("active");
-      if (btn.textContent === `${speed}x`) {
-        btn.classList.add("active");
-      }
-    });
+    currentSpeed = speed;
+    updateButtonStates();
+    console.log(`Speed set to ${speed}x`);
   }
 }
 
-async function addSpeedButtons() {
-  // Check if extension is enabled
-  const isEnabled = await checkExtensionState();
-  if (!isEnabled) {
-    return; // Don't add buttons if extension is disabled
-  }
-
-  // Try multiple selectors for YouTube player controls
-  const playerControls =
-    document.querySelector(".ytp-left-controls") ||
-    document.querySelector(".ytp-chrome-controls .ytp-left-controls") ||
-    document.querySelector("#movie_player .ytp-left-controls");
-
-  if (!playerControls || document.getElementById("yt-speed-buttons")) return;
-
-  // Also check if video exists before adding buttons
-  const video = document.querySelector("video");
-  if (!video) return;
-
-  const container = document.createElement("div");
-  container.id = "yt-speed-buttons";
-  container.className = "yt-speed-container";
-
-  [2, 3, 4].forEach((speed) => {
-    const btn = document.createElement("button");
-    btn.textContent = `${speed}x`;
-    btn.className = "yt-speed-btn";
-    btn.setAttribute("aria-label", `Set speed to ${speed}x`);
-    btn.addEventListener("click", () => {
-      const currentVideo = document.querySelector("video");
-      if (currentVideo) {
-        currentVideo.playbackRate = speed;
-        // Remove active class from all buttons
-        document
-          .querySelectorAll(".yt-speed-btn")
-          .forEach((b) => b.classList.remove("active"));
-        // Add active class to clicked button
-        btn.classList.add("active");
-      }
-    });
-    container.appendChild(btn);
+// ==========================
+// Update Button States
+// ==========================
+function updateButtonStates() {
+  document.querySelectorAll(".yt-speed-btn").forEach((btn) => {
+    const s = parseFloat(btn.dataset.speed);
+    btn.classList.toggle("active", Math.abs(s - currentSpeed) < 0.01);
   });
 
-  // Add custom speed button
+  // Update custom button display based on current speed
+  updateCustomButtonDisplay(currentSpeed);
+}
+
+// ==========================
+// Add Speed Buttons
+// ==========================
+function addSpeedButtons() {
+  const controls = document.querySelector(".ytp-right-controls");
+  if (!controls) {
+    console.log("Right controls not found");
+    return false;
+  }
+
+  if (document.querySelector(".yt-speed-btn")) {
+    console.log("Speed buttons already exist");
+    return true;
+  }
+
+  console.log("Adding speed buttons");
+
+  // Add custom speed button first
   const customBtn = document.createElement("button");
-  customBtn.textContent = "Custom";
-  customBtn.className = "yt-speed-btn yt-custom-btn";
-  customBtn.setAttribute("aria-label", "Set custom speed");
-  customBtn.addEventListener("click", () => {
-    const currentVideo = document.querySelector("video");
-    if (currentVideo) {
-      showCustomSpeedModal(currentVideo, customBtn);
-    }
+  customBtn.className = "ytp-button yt-speed-btn yt-custom-btn";
+  customBtn.innerHTML = `
+    <svg height="24" viewBox="0 0 24 24" width="24" style="fill: currentColor;">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  `;
+  customBtn.title = "Set custom speed";
+  customBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showCustomSpeedModal();
   });
-  container.appendChild(customBtn);
-  playerControls.appendChild(container);
+  controls.insertBefore(customBtn, controls.firstChild);
+
+  // Add preset buttons in reverse order since we're prepending
+  [...SPEEDS].reverse().forEach((speed) => {
+    const btn = document.createElement("button");
+    btn.className = "ytp-button yt-speed-btn";
+    btn.dataset.speed = speed;
+    btn.textContent = `${speed}x`;
+    btn.title = `Set speed to ${speed}x`;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setVideoSpeed(speed);
+    });
+    controls.insertBefore(btn, controls.firstChild);
+  });
+
+  // Monitor video for speed changes
+  const video = document.querySelector("video");
+  if (video) {
+    currentSpeed = video.playbackRate;
+    updateButtonStates();
+
+    video.addEventListener("ratechange", () => {
+      currentSpeed = video.playbackRate;
+      updateButtonStates();
+    });
+  }
+
+  return true;
 }
 
-async function waitForPlayer() {
-  const checkPlayer = async () => {
-    const player = document.querySelector("#movie_player");
-    const video = document.querySelector("video");
-    const controls = document.querySelector(".ytp-left-controls");
+// ==========================
+// Wait for YouTube Player
+// ==========================
+function waitForPlayer() {
+  console.log(`Waiting for player (attempt ${retryCount + 1})`);
 
-    if (player && video && controls) {
-      setTimeout(() => addSpeedButtons(), 500); // Small delay to ensure everything is loaded
-    } else {
-      setTimeout(checkPlayer, 1000); // Check again in 1 second
+  const player = document.querySelector("#movie_player");
+  const video = document.querySelector("video");
+  const controls = document.querySelector(".ytp-right-controls");
+
+  if (player && video && controls) {
+    console.log("Player found, adding buttons");
+    if (addSpeedButtons()) {
+      return;
     }
-  };
-  checkPlayer();
+  }
+
+  retryCount++;
+  if (retryCount < maxRetries) {
+    setTimeout(waitForPlayer, 1000);
+  } else {
+    console.log("Max retries reached, giving up");
+  }
 }
 
-// Enhanced observer to catch YouTube's navigation
+// ==========================
+// Observe DOM Changes
+// ==========================
 const observer = new MutationObserver((mutations) => {
-  let shouldAddButtons = false;
+  let shouldCheck = false;
 
+  // Check if URL changed (SPA navigation)
+  if (location.href !== window.lastUrl) {
+    window.lastUrl = location.href;
+    retryCount = 0;
+    setTimeout(waitForPlayer, 1000);
+    return;
+  }
+
+  // Check if relevant elements were added
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
-      // Check if new nodes include video player elements
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === 1) {
-          // Element node
           if (
             node.matches &&
             (node.matches("#movie_player") ||
-              node.matches(".ytp-left-controls") ||
+              node.matches(".ytp-right-controls") ||
               (node.querySelector &&
                 (node.querySelector("#movie_player") ||
-                  node.querySelector(".ytp-left-controls"))))
+                  node.querySelector(".ytp-right-controls"))))
           ) {
-            shouldAddButtons = true;
+            shouldCheck = true;
           }
         }
       });
     }
   });
 
-  if (shouldAddButtons) {
-    setTimeout(() => addSpeedButtons(), 1000);
+  if (shouldCheck) {
+    setTimeout(() => {
+      const controls = document.querySelector(".ytp-right-controls");
+      if (controls && !controls.querySelector(".yt-speed-btn")) {
+        addSpeedButtons();
+      }
+    }, 500);
   }
 });
 
-// Start observing
-observer.observe(document.body, {
+observer.observe(document.documentElement, {
   childList: true,
   subtree: true,
-  attributes: false,
-  characterData: false,
 });
 
-// Initial attempts
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", waitForPlayer);
-} else {
-  waitForPlayer();
-}
+// ==========================
+// Periodic Check
+// ==========================
+const periodicCheck = setInterval(() => {
+  const controls = document.querySelector(".ytp-right-controls");
+  const buttons = document.querySelectorAll(".yt-speed-btn");
 
-// Also try when page loads completely
-window.addEventListener("load", () => {
-  setTimeout(waitForPlayer, 2000);
-});
-
-// Handle YouTube's SPA navigation
-let lastUrl = location.href;
-new MutationObserver(() => {
-  const url = location.href;
-  if (url !== lastUrl) {
-    lastUrl = url;
-    setTimeout(waitForPlayer, 2000); // Wait for new page to load
+  if (controls && buttons.length === 0) {
+    console.log("Periodic check: adding missing buttons");
+    addSpeedButtons();
+  } else if (buttons.length > 0) {
+    clearInterval(periodicCheck);
+    console.log("Buttons found, stopping periodic check");
   }
-}).observe(document, { subtree: true, childList: true });
+}, 2000);
+
+// Stop periodic check after 1 minute
+setTimeout(() => clearInterval(periodicCheck), 60000);
+
+// ==========================
+// Init
+// ==========================
+(function init() {
+  console.log("YouTube Speed Booster initializing...");
+  window.lastUrl = location.href;
+  injectStyles();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", waitForPlayer);
+  } else {
+    waitForPlayer();
+  }
+
+  window.addEventListener("load", () => {
+    setTimeout(waitForPlayer, 1000);
+  });
+})();

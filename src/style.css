@@ -1,720 +1,472 @@
-#yt-speed-buttons {
-  display: flex;
-  gap: 6px;
-  margin-left: 12px;
-  align-items: center;
-  z-index: 1000;
-}
-
+/* YouTube Speed Popup Styling */
 .yt-speed-container {
-  display: flex !important;
-  gap: 6px;
-  margin-left: 12px;
+  position: fixed;
+  z-index: 10000;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  width: 280px; /* Reduced from 320px */
+  padding: 16px; /* Reduced from 20px */
+  color: white;
+  font-family: "Roboto", "YouTube Noto", Arial, sans-serif;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
+}
+
+.yt-speed-container.visible {
+  display: block !important;
+}
+
+.yt-speed-header {
+  font-size: 16px; /* Reduced from 18px */
+  font-weight: 500;
+  margin-bottom: 12px; /* Reduced from 16px */
+  color: white;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.yt-speed-current {
+  font-size: 13px; /* Reduced from 14px */
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16px; /* Reduced from 20px */
+  text-align: center;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 6px 10px; /* Reduced from 8px 12px */
+  border-radius: 16px; /* Reduced from 20px */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.yt-speed-slider-container {
+  display: flex;
   align-items: center;
+  gap: 12px; /* Reduced from 16px */
+  margin-bottom: 18px; /* Reduced from 24px */
+  padding: 12px; /* Reduced from 16px */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 10px; /* Reduced from 12px */
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.yt-speed-btn {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(16px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-medium-light,
-    rgba(0, 0, 0, 0.3)
-  ) !important;
-  color: white !important;
-  border: none !important;
-  padding: 8px 16px !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  border-radius: 20px !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  min-width: 42px !important;
-  height: 36px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: "Roboto", "YouTube Sans", sans-serif !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  position: relative !important;
-  overflow: visible !important;
+.yt-speed-slider {
+  flex: 1;
+  height: 5px; /* Reduced from 6px */
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2.5px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.yt-speed-btn::before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 20px !important;
-  opacity: 0 !important;
-  transition: opacity 0.2s ease !important;
+.yt-speed-slider:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
-.yt-speed-btn:hover::before {
-  opacity: 1 !important;
+.yt-speed-slider.sliding {
+  background: linear-gradient(to right, #ff6b35 0%, #ff9068 100%);
 }
 
-.yt-speed-btn:hover {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(20px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-medium,
-    rgba(0, 0, 0, 0.5)
-  ) !important;
-  transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+.yt-speed-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; /* Reduced from 20px */
+  height: 18px; /* Reduced from 20px */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.yt-speed-btn:active {
-  transform: scale(0.98) !important;
-  transition: all 0.1s !important;
+.yt-speed-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 1);
 }
 
-.yt-speed-btn.active {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(20px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-heavy,
-    rgba(255, 255, 255, 0.2)
-  ) !important;
-  color: white !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4),
-    inset 0 1px 3px rgba(255, 255, 255, 0.1) !important;
-  transform: scale(1.02) !important;
+.yt-speed-slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff9068 100%);
 }
 
-/* Ensure buttons are visible even with YouTube's changing styles */
-.ytp-left-controls #yt-speed-buttons {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.yt-speed-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Handle different YouTube themes */
-.ytp-chrome-controls .yt-speed-btn {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(16px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-medium-light,
-    rgba(255, 255, 255, 0.1)
-  ) !important;
+.yt-speed-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
 }
 
-/* For dark mode compatibility */
-[dark] .yt-speed-btn,
-.dark .yt-speed-btn {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(16px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-medium-light,
-    rgba(255, 255, 255, 0.1)
-  ) !important;
-  color: white !important;
+.yt-speed-slider-value {
+  font-size: 14px; /* Reduced from 16px */
+  font-weight: 600;
+  color: white;
+  min-width: 40px; /* Reduced from 45px */
+  text-align: right;
+  transition: all 0.15s ease;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 6px 10px; /* Reduced from 8px 12px */
+  border-radius: 6px; /* Reduced from 8px */
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Custom speed button styling */
-.yt-custom-btn {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(16px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-medium-light,
-    rgba(76, 175, 80, 0.6)
-  ) !important;
-  border: none !important;
-  min-width: 68px !important;
-  color: white !important;
-  font-weight: 600 !important;
-  position: relative !important;
-  border-radius: 20px !important;
+.yt-speed-presets-header {
+  font-size: 13px; /* Reduced from 15px */
+  font-weight: 500;
+  margin-bottom: 12px; /* Reduced from 16px */
+  color: #ff6b35;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.yt-custom-btn::after {
-  content: "⚡" !important;
-  position: absolute !important;
-  top: -1px !important;
-  right: 4px !important;
-  font-size: 9px !important;
-  opacity: 0.8 !important;
-}
-
-.yt-custom-btn:hover {
-  background: rgba(56, 142, 60, 0.9) !important;
-  transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4) !important;
-}
-
-.yt-custom-btn:active,
-.yt-custom-btn.active {
-  background: rgba(76, 175, 80, 0.9) !important;
-  color: white !important;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4),
-    inset 0 1px 3px rgba(255, 255, 255, 0.2) !important;
-  transform: scale(1.02) !important;
-}
-
-/* Modern Custom Speed Modal */
-.yt-speed-modal-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(16px) !important;
-  z-index: 10000 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: "YouTube Sans", "Roboto", sans-serif !important;
-  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(16px);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-24px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.yt-speed-modal {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(24px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-heavy,
-    rgba(30, 30, 30, 0.98)
-  ) !important;
-  border-radius: 12px !important;
-  padding: 28px !important;
-  min-width: 360px !important;
-  max-width: 400px !important;
-  color: white !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  position: relative !important;
-  animation: slideIn 0.35s cubic-bezier(0.34, 1.26, 0.64, 1) !important;
-}
-
-.yt-speed-modal::before {
-  display: none !important;
-}
-
-.yt-speed-modal-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 24px !important;
-  padding-bottom: 16px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-  position: relative !important;
-}
-
-.yt-speed-modal-header::after {
-  display: none !important;
-}
-
-.yt-speed-modal-header h3 {
-  margin: 0 !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  color: #fff !important;
-  font-family: "YouTube Sans", "Roboto", sans-serif !important;
-  background: linear-gradient(135deg, #ffffff, #e0e0e0) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-}
-
-.yt-speed-close-btn {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #aaa !important;
-  font-size: 18px !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  width: 36px !important;
-  height: 36px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 8px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-.yt-speed-close-btn:hover {
-  background: rgba(255, 0, 0, 0.1) !important;
-  border-color: rgba(255, 0, 0, 0.3) !important;
-  color: #ff4444 !important;
-  transform: scale(1.05) !important;
-}
-
-.yt-current-speed {
-  margin-bottom: 24px !important;
-  padding: 16px 20px !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06),
-    rgba(255, 255, 255, 0.03)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 10px !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: #fff !important;
-  text-align: center !important;
-  position: relative !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-.yt-current-speed::before {
-  display: none !important;
-}
-
-.yt-speed-input-section {
-  margin-bottom: 24px !important;
-}
-
-.yt-speed-range-container {
-  margin-bottom: 20px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-  padding: 16px 20px !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.02)
-  ) !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(8px) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.yt-speed-range {
-  flex: 1 !important;
-  height: 6px !important;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.15)
-  ) !important;
-  border-radius: 3px !important;
-  outline: none !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  position: relative !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.yt-speed-range::-webkit-slider-thumb {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  width: 20px !important;
-  height: 20px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
-  cursor: pointer !important;
-  border: 2px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-.yt-speed-range::-webkit-slider-thumb:hover {
-  transform: scale(1.2) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-  background: linear-gradient(135deg, #ffffff, #e8e8e8) !important;
-}
-
-.yt-speed-range::-moz-range-thumb {
-  width: 20px !important;
-  height: 20px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
-  cursor: pointer !important;
-  border: 2px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2) !important;
-}
-
-.yt-speed-range-value {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: #fff !important;
-  min-width: 40px !important;
-  text-align: center !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.yt-speed-text-input {
-  width: 90px !important;
-  padding: 10px 14px !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.04)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
-  color: white !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  text-align: center !important;
-  box-sizing: border-box !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-.yt-speed-text-input:focus {
-  outline: none !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.08)
-  ) !important;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
-  transform: translateY(-2px) scale(1.02) !important;
-}
-
-.yt-speed-text-input::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.yt-speed-presets {
-  margin-bottom: 20px !important;
-}
-
-.yt-speed-presets-label {
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  margin-bottom: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-.yt-speed-presets-label::before {
-  content: "⚡" !important;
-  margin-right: 8px !important;
-  font-size: 14px !important;
-  opacity: 0.9 !important;
-}
-
-.yt-speed-presets-buttons {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 10px !important;
+.yt-speed-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px; /* Reduced from 10px */
+  margin-bottom: 16px; /* Reduced from 20px */
+  padding: 12px; /* Reduced from 16px */
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  border-radius: 10px; /* Reduced from 12px */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .yt-speed-preset-btn {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.04)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  padding: 10px 14px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-  min-width: auto !important;
-  position: relative !important;
-  text-align: center !important;
-  backdrop-filter: blur(8px) !important;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px; /* Reduced from 10px */
+  color: white;
+  padding: 10px 6px; /* Reduced from 12px 8px */
+  font-size: 12px; /* Reduced from 13px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .yt-speed-preset-btn::before {
-  display: none !important;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
 .yt-speed-preset-btn:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.1)
-  ) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.yt-speed-preset-btn.selected {
+.yt-speed-preset-btn:hover::before {
+  left: 100%;
+}
+
+.yt-speed-preset-btn:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
+.yt-speed-preset-btn.active {
+  background: rgba(0, 212, 170, 0.3);
+  backdrop-filter: blur(15px);
+  border-color: rgba(0, 212, 170, 0.6);
+  color: white;
+  font-weight: 600;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 212, 170, 0.4),
+    0 4px 12px rgba(0, 212, 170, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.yt-speed-close-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px; /* Reduced from 12px */
+  color: rgba(255, 255, 255, 0.8);
+  padding: 12px; /* Reduced from 14px */
+  font-size: 13px; /* Reduced from 14px */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.yt-speed-close-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.15)
-  ) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.yt-speed-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.yt-speed-close-btn:hover::before {
+  left: 100%;
+}
+
+.yt-speed-close-btn:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
+/* YouTube player button styling */
+.ytp-speed-button {
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.ytp-speed-button:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.ytp-speed-button:active {
+  transform: scale(0.95);
+}
+
+.ytp-speed-button svg {
+  width: 24px;
+  height: 24px;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Speed preset buttons in player controls - Enhanced for fullscreen */
+.ytp-speed-preset-btn {
+  font-family: "Roboto", "YouTube Noto", Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
   color: #fff !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-2px) scale(1.02) !important;
-}
-
-.yt-speed-modal-actions {
-  display: flex !important;
-  gap: 14px !important;
-  justify-content: flex-end !important;
-  padding-top: 20px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
-  margin-top: 8px !important;
-}
-
-.yt-speed-btn-secondary {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.04)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  padding: 10px 18px !important;
-  border-radius: 8px !important;
+  margin: 0 !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 0 !important;
+  opacity: 0.9 !important;
+  transition: opacity 0.1s cubic-bezier(0.4, 0, 1, 1) !important;
+  background: transparent !important;
+  border: none !important;
   cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-  backdrop-filter: blur(8px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  position: relative !important;
+  vertical-align: top !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
-.yt-speed-btn-secondary::before {
+.ytp-speed-preset-btn:hover {
+  opacity: 1 !important;
+}
+
+.ytp-speed-preset-btn.active {
+  opacity: 1 !important;
+  color: #3ea6ff !important;
+  font-weight: 600 !important;
+}
+
+.ytp-speed-preset-btn:focus {
+  outline: none !important;
+}
+
+/* Enhanced main speed button */
+.ytp-speed-button {
+  opacity: 0.9 !important;
+  transition: opacity 0.1s cubic-bezier(0.4, 0, 1, 1) !important;
+  width: 48px !important;
+  height: 48px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  position: relative !important;
+  cursor: pointer !important;
+  outline: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.ytp-speed-button:hover {
+  opacity: 1 !important;
+}
+
+.ytp-speed-button:focus {
+  outline: none !important;
+}
+
+.ytp-speed-button svg {
+  width: 24px !important;
+  height: 24px !important;
+  transition: none !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)) !important;
+}
+
+/* Fullscreen mode enhancements */
+.ytp-fullscreen .ytp-speed-preset-btn {
+  width: 80px !important;
+  height: 80px !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 8px !important;
+  margin: 0 4px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ytp-fullscreen .ytp-speed-button {
+  width: 80px !important;
+  height: 80px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 8px !important;
+  margin: 0 4px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ytp-fullscreen .ytp-speed-button svg {
+  width: 40px !important;
+  height: 40px !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9)) !important;
+}
+
+/* Enhanced hover effects in fullscreen */
+.ytp-fullscreen .ytp-speed-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.ytp-fullscreen .ytp-speed-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.ytp-fullscreen .ytp-speed-preset-btn.active {
+  background: rgba(62, 166, 255, 0.4) !important;
+  color: #3ea6ff !important;
+  border-color: rgba(62, 166, 255, 0.6) !important;
+  box-shadow: 0 4px 20px rgba(62, 166, 255, 0.3) !important;
+}
+
+/* Ultra-wide and 4K display support */
+@media (min-width: 2560px) and (min-height: 1440px) {
+  .ytp-fullscreen .ytp-speed-preset-btn {
+    width: 100px !important;
+    height: 100px !important;
+    font-size: 24px !important;
+    margin: 0 6px !important;
+  }
+
+  .ytp-fullscreen .ytp-speed-button {
+    width: 100px !important;
+    height: 100px !important;
+    margin: 0 6px !important;
+  }
+
+  .ytp-fullscreen .ytp-speed-button svg {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* Ensure buttons are visible and properly positioned in fullscreen */
+.ytp-fullscreen .ytp-right-controls .ytp-speed-preset-btn,
+.ytp-fullscreen .ytp-right-controls .ytp-speed-button {
+  order: -10 !important;
+  flex: none !important;
+  z-index: 100 !important;
+  visibility: visible !important;
+  display: inline-flex !important;
+}
+
+/* Remove separator in fullscreen for cleaner look */
+.ytp-fullscreen .ytp-speed-button::after {
   display: none !important;
 }
 
-.yt-speed-btn-secondary:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.08)
-  ) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+/* Smooth transitions for fullscreen mode changes */
+.ytp-speed-preset-btn,
+.ytp-speed-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.yt-speed-btn-primary {
-  background: linear-gradient(135deg, #ff0000, #cc0000) !important;
-  border: 1px solid #ff0000 !important;
-  color: white !important;
-  padding: 10px 18px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.25) !important;
+/* Fix for control bar visibility in fullscreen */
+.ytp-fullscreen .ytp-chrome-controls .ytp-speed-preset-btn,
+.ytp-fullscreen .ytp-chrome-controls .ytp-speed-button {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
-.yt-speed-btn-primary::before {
-  display: none !important;
+/* Ensure controls are accessible when controls are hidden/shown */
+.ytp-fullscreen.ytp-autohide .ytp-speed-preset-btn,
+.ytp-fullscreen.ytp-autohide .ytp-speed-button {
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
 }
 
-.yt-speed-btn-primary:hover {
-  background: linear-gradient(135deg, #cc0000, #990000) !important;
-  border-color: #cc0000 !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4) !important;
-}
-
-.yt-speed-btn-primary:active {
-  transform: translateY(0px) scale(0.98) !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Speed Menu Overlay Styles */
-.yt-speed-menu-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
-  z-index: 10000 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  animation: fadeIn 0.3s ease !important;
-}
-
-.yt-speed-menu {
-  backdrop-filter: var(
-    --yt-frosted-glass-backdrop-filter-override,
-    blur(20px)
-  ) !important;
-  background: var(
-    --yt-spec-static-overlay-background-heavy,
-    rgba(30, 30, 30, 0.95)
-  ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 16px !important;
-  padding: 24px !important;
-  min-width: 300px !important;
-  max-width: 400px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4) !important;
-  animation: slideIn 0.3s ease !important;
-  font-family: "Roboto", "YouTube Sans", sans-serif !important;
-}
-
-.yt-speed-menu-header {
-  text-align: center !important;
-  margin-bottom: 20px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding-bottom: 16px !important;
-}
-
-.yt-speed-menu-header h3 {
-  color: white !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  margin: 0 0 8px 0 !important;
-}
-
-.yt-speed-menu-header .yt-current-speed {
-  color: rgba(255, 255, 255, 0.8) !important;
-  font-size: 14px !important;
-  font-weight: 400 !important;
-}
-
-.yt-speed-menu-header .disabled-text {
-  color: rgba(255, 255, 255, 0.6) !important;
-  font-size: 14px !important;
-  font-style: italic !important;
-}
-
-.yt-speed-options {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  margin-bottom: 16px !important;
-}
-
-.yt-speed-menu-btn {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  padding: 12px 16px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  text-align: left !important;
-  transition: all 0.3s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  font-family: inherit !important;
-}
-
-.yt-speed-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-}
-
-.yt-speed-menu-btn.active {
-  background: rgba(255, 0, 0, 0.2) !important;
-  border-color: #ff0000 !important;
-  color: #ff4444 !important;
-}
-
-.yt-speed-menu-btn.custom-speed {
-  background: rgba(0, 100, 255, 0.1) !important;
-  border-color: rgba(0, 100, 255, 0.3) !important;
-  color: #4285f4 !important;
-}
-
-.yt-speed-menu-btn.custom-speed:hover {
-  background: rgba(0, 100, 255, 0.2) !important;
-  border-color: rgba(0, 100, 255, 0.5) !important;
-}
-
-.yt-speed-menu-btn.disable-btn {
-  background: rgba(255, 0, 0, 0.1) !important;
-  border-color: rgba(255, 0, 0, 0.3) !important;
-  color: #ff4444 !important;
-  margin-top: 8px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  padding-top: 16px !important;
-}
-
-.yt-speed-menu-btn.disable-btn:hover {
-  background: rgba(255, 0, 0, 0.2) !important;
-  border-color: rgba(255, 0, 0, 0.5) !important;
-}
-
-.yt-speed-menu-btn.enable-btn {
-  background: rgba(0, 255, 0, 0.1) !important;
-  border-color: rgba(0, 255, 0, 0.3) !important;
-  color: #4caf50 !important;
-  width: 100% !important;
-  justify-content: center !important;
-}
-
-.yt-speed-menu-btn.enable-btn:hover {
-  background: rgba(0, 255, 0, 0.2) !important;
-  border-color: rgba(0, 255, 0, 0.5) !important;
-}
-
-.yt-speed-menu.disabled-menu {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0 !important;
-  }
-  to {
-    opacity: 1 !important;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0 !important;
-    transform: translateY(-20px) scale(0.95) !important;
-  }
-  to {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
-  }
+.ytp-fullscreen.ytp-autohide:hover .ytp-speed-preset-btn,
+.ytp-fullscreen.ytp-autohide:hover .ytp-speed-button,
+.ytp-fullscreen.ytp-chrome-controls-showing .ytp-speed-preset-btn,
+.ytp-fullscreen.ytp-chrome-controls-showing .ytp-speed-button {
+  opacity: 1 !important;
 }
