@@ -177,16 +177,19 @@ function injectStyles() {
         /* Responsive Speed Modal */
         .yt-speed-modal {
             position: fixed;
-            background: #212121;
+            background: rgba(63, 61, 60, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 8px;
             padding: 16px;
             color: white;
             font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
             width: min(280px, 90vw);
             max-width: 350px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                       0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             z-index: 999999;
-            border: 1px solid #404040;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         /* Mobile modal */
@@ -282,15 +285,18 @@ function injectStyles() {
         /* YouTube-style Speed Modal */
         .yt-speed-modal {
             position: fixed;
-            background: #212121;
+            background: rgba(63, 61, 60, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 8px;
             padding: 16px;
             color: white;
             font-family: "Roboto", "YouTube Sans", Arial, sans-serif;
             width: 250px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                       0 0 0 1px rgba(255, 255, 255, 0.1) inset;
             z-index: 999999;
-            border: 1px solid #404040;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         .yt-speed-modal-header {
