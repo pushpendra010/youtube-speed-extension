@@ -440,11 +440,16 @@ function injectStyles() {
         
         /* Hide speed buttons on small screens like other YouTube controls */
         @media (max-width: 768px) {
-            .ytp-right-controls-left .yt-speed-btn {
+            .ytp-right-controls-left .yt-speed-btn:not(.yt-custom-btn) {
                 display: none !important;
             }
             
-            /* Show only in fullscreen on mobile */
+            /* Always show custom button */
+            .ytp-right-controls-left .yt-custom-btn {
+                display: inline-flex !important;
+            }
+            
+            /* Show all in fullscreen on mobile */
             .ytp-fullscreen .ytp-right-controls-left .yt-speed-btn {
                 display: inline-flex !important;
             }
